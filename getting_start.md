@@ -11,6 +11,7 @@ Vào Phpmyadmin để tạo một database mới, ví dụ tên database đượ
 Sau đó mở terminal,ta thực hiện lệnh sau để copy ra file env:
 `cp .env.example .env`
 Tiếp theo cập nhật file env:
+
     DB_CONNECTION=mysql          
     DB_HOST=127.0.0.1            
     DB_PORT=3306                 
