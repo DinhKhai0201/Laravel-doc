@@ -4,8 +4,8 @@
 ## Tạo mới một project
 `laravel new blog`
 ## Chạy composer và npm để cài đặt các gói cần thiết trong dự án
-`composer install`
-`npm install `
+    composer install
+    npm install
 ## Tạo database và config database
 Vào Phpmyadmin để tạo một database mới, ví dụ tên database được tạo là blog_laravel
 Sau đó mở terminal,ta thực hiện lệnh sau để copy ra file env:
