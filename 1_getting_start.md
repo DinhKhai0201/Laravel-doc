@@ -25,6 +25,7 @@ Tiếp theo cập nhật file env:
     php artisan db:seed
 ## public thư mục lưu trữ 
 Sau khi cài dự án bạn phải public thư mục lưu trữ của bạn khi người dùng upload ảnh.
+
 `php artisan storage:link`
 ## Local Development Server
 `php artisan serve`
