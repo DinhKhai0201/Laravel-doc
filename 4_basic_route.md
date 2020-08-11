@@ -582,3 +582,178 @@ Cmd : `php artisan make:controller myController`
     }
 ### Trusting All Proxies
 `protected $proxies = '*';`
+
+
+# Response
+ - String : 
+    Route::get('/', function () {
+        return 'Hello World';
+    });
+ - Array :
+    Route::get('/', function () {
+        return [1, 2, 3];
+    });
+
+## Attaching Headers To Responses
+    return response($content)
+                ->header('Content-Type', $type)
+                ->header('X-Header-One', 'Header Value')
+                ->header('X-Header-Two', 'Header Value');
+
+    return response($content)
+                ->withHeaders([
+                    'Content-Type' => $type,
+                    'X-Header-One' => 'Header Value',
+                    'X-Header-Two' => 'Header Value',
+                ]);
+
+## Attaching Cookies To Responses
+    return response($content)
+                    ->header('Content-Type', $type)
+                    ->cookie('name', 'value', $minutes);
+## Redirects
+    Route::get('dashboard', function () {
+        return redirect('home/dashboard');
+    });
+
+ - KHi submit form có field invalid thì muốn trở lại trang đó ;
+    Route::post('user/profile', function () {
+        // Validate the request...
+
+        return back()->withInput();
+    });
+
+## Redirecting To Controller Actions
+`return redirect()->action('HomeController@index');`
+
+    return redirect()->action(
+        'UserController@profile', ['id' => 1]
+    );
+
+## Redirecting To External Domains
+`return redirect()->away('https://www.google.com');`
+
+## Redirecting With Flashed Session Data
+    Route::post('user/profile', function () {
+        // Update the user's profile...
+
+        return redirect('dashboard')->with('status', 'Profile updated!');
+    });
+ - Và ta hiện thị flash message bằng session tại file view:
+    @if (session('status'))
+        <div class="alert alert-success">
+            {{ session('status') }}
+        </div>
+    @endif
+
+## JSON Responses
+    return response()->json([
+        'name' => 'Abigail',
+        'state' => 'CA',
+    ]);
+
+## File Downloads
+    return response()->download($pathToFile);
+
+    return response()->download($pathToFile, $name, $headers);
+
+    return response()->download($pathToFile)->deleteFileAfterSend();
+
+# Views (resources/views)
+    <!-- View stored in resources/views/greeting.blade.php -->
+
+    <html>
+        <body>
+            <h1>Hello, {{ $name }}</h1>
+        </body>
+    </html>
+
+    Route::get('/', function () {
+        return view('greeting', ['name' => 'James']);
+    });
+
+ - File view có đường dẫn `resources/views/admin/profile.blade.php,` thì route dùng dấu chấm (.) đến nối :
+ `return view('admin.profile', $data);`
+
+ ## Passing Data To Views
+ `return view('greetings', ['name' => 'Victoria']);`
+
+ ## Sharing Data With All Views
+  - Dùng method `share` của Class `view` tại method `boot` của class `AppServiceProvider` :
+
+    <?php
+
+    namespace App\Providers;
+
+    use Illuminate\Support\Facades\View;
+
+    class AppServiceProvider extends ServiceProvider
+    {
+        /**
+        * Register any application services.
+        *
+        * @return void
+        */
+        public function register()
+        {
+            //
+        }
+
+        /**
+        * Bootstrap any application services.
+        *
+        * @return void
+        */
+        public function boot()
+        {
+            View::share('key', 'value');
+        }
+    }
+
+
+# HTTP Session
+## Configuration
+ - Cấu hình session tại `config/session.php`
+## Using The Session
+### Retrieving Data
+ - Gọi `session` thông qua `request` : ` $value = $request->session()->get('key');`
+
+ - Khi `key` không tồn tại: `$value = $request->session()->get('key', 'default');`
+
+ - Hoặc sử dụng `session` global : `$value = session('key');`
+ - Gọi tất cả `session` : `$data = $request->session()->all();`
+ - Xem `session` có tồn tại không :
+
+    if ($request->session()->has('users')) {
+        //
+    }
+
+### Storing Data
+    // Via a request instance...
+    $request->session()->put('key', 'value');
+
+
+    // Via the global helper...
+    session(['key' => 'value']);
+ 
+ - Thêm data vào session , ta sử dụng `push`:
+
+ `$request->session()->push('user.teams', 'developers');`
+### Flash Data
+ - Khi muốn lưu session ở request tiếp theo, request tiếp theo nữa sẽ không khả dụng 
+
+ `$request->session()->flash('status', 'Task was successful!');`
+### Delete session
+    // Forget a single key...
+    $request->session()->forget('key');
+
+    // Forget multiple keys...
+    $request->session()->forget(['key1', 'key2']);
+
+     // Forget all keys...
+    $request->session()->flush();
+
+
+
+
+
