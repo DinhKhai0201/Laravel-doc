@@ -510,3 +510,75 @@ Cmd : `php artisan make:controller myController`
     if ($request->isMethod('post')) {
         //
     }
+
+## Retrieving Input
+`$input = $request->all();` or `$input = $request->input();` //array
+`$name = $request->input('name');` //input có name là 'name'
+`$name = $request->input('name', 'Sally');` // default value là 'Sally'
+
+`$name = $request->input('products.0.name');` // form có nhiều input
+`$names = $request->input('products.*.name');`
+
+## Retrieving Input From The Query String
+`$name = $request->query('name');`
+`$name = $request->query('name', 'Helen');` // khi query string value data  không tồn tại
+`$query = $request->query();` // all query
+## Retrieving Boolean Input Values
+`$archived = $request->boolean('archived');`
+## If An Input Value Is Present
+    if ($request->has('name')) {
+        //name
+    }
+
+    if ($request->has(['name', 'email'])) {  
+        // all name, email
+    }
+
+    if ($request->hasAny(['name', 'email'])) {
+        //name or email
+    }
+## Retrieving Cookies From Requests
+`$value = $request->cookie('name');`
+
+`$file = $request->photo;`
+## Retrieving Uploaded Files
+`$file = $request->file('photo');`
+
+    if ($request->file('photo')->isValid()) {
+        //
+    }
+### File Paths & Extensions
+    $path = $request->photo->path();
+
+    $extension = $request->photo->extension();
+## Storing Uploaded Files
+`$path = $request->photo->store('images');`
+### Configuring Trusted Proxies (App\Http\Middleware\TrustProxies)
+    <?php
+
+    namespace App\Http\Middleware;
+
+    use Fideloper\Proxy\TrustProxies as Middleware;
+    use Illuminate\Http\Request;
+
+    class TrustProxies extends Middleware
+    {
+        /**
+        * The trusted proxies for this application.
+        *
+        * @var string|array
+        */
+        protected $proxies = [
+            '192.168.1.1',
+            '192.168.1.2',
+        ];
+
+        /**
+        * The headers that should be used to detect proxies.
+        *
+        * @var int
+        */
+        protected $headers = Request::HEADER_X_FORWARDED_ALL;
+    }
+### Trusting All Proxies
+`protected $proxies = '*';`
