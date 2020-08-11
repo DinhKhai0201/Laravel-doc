@@ -255,5 +255,258 @@ If you want a middleware to run during every HTTP request to your application, l
 
 # Controllers (app/Http/Controllers)
 Cmd : `php artisan make:controller myController`
+ - Tạo mới 1 controller: 
 
+    <?php
 
+    namespace App\Http\Controllers;
+
+    use App\Http\Controllers\Controller;
+    use App\User;
+
+    class UserController extends Controller
+    {
+        /**
+        * Show the profile for the given user.
+        *
+        * @param  int  $id
+        * @return View
+        */
+        public function show($id)
+        {
+            return view('user.profile', ['user' => User::findOrFail($id)]);
+        }
+    }
+
+ - Sau đó gọi từ route :
+`Route::get('user/{id}', 'UserController@show');`
+
+ - Nếu tạọ 1 nest controller : `App\Http\Controllers\Photos\AdminController`
+ thì tại route sẽ thế này : `Route::get('foo', 'Photos\AdminController@method');`
+
+ ## Single Action Controllers
+  - Nếu trong controller chỉ xử lý 1 acction duy nhất, thì ta sử dụng hàm `__invoke`:
+    <?php
+
+    namespace App\Http\Controllers;
+
+    use App\Http\Controllers\Controller;
+    use App\User;
+
+    class ShowProfile extends Controller
+    {
+        /**
+        * Show the profile for the given user.
+        *
+        * @param  int  $id
+        * @return View
+        */
+        public function __invoke($id)
+        {
+            return view('user.profile', ['user' => User::findOrFail($id)]);
+        }
+    }
+
+`Route::get('user/{id}', 'ShowProfile');`
+ - cmd tạo --invoke : `php artisan make:controller ShowProfile --invokable`
+
+ ## Controller Middleware
+  - Sử dụng midleware tại route : `Route::get('profile', 'UserController@show')->middleware('auth');`
+   - Hoẵc sử dụng trong controller : 
+
+    class UserController extends Controller
+    {
+        /**
+        * Instantiate a new controller instance.
+        *
+        * @return void
+        */
+        public function __construct()
+        {
+            $this->middleware('auth');
+
+            $this->middleware('log')->only('index');
+
+            $this->middleware('subscribed')->except('store');
+        }
+    }
+    
+
+## Resource Controllers
+`php artisan make:controller PhotoController --resource`
+ - Giúp code gọn hơn, không cần phải ghi nhiều method crud
+    class PhotoController extends Controller
+    {
+        /**
+        * Display a listing of the resource.
+        *
+        * @return \Illuminate\Http\Response
+        */
+        public function index()
+        {
+            //
+        }
+
+        /**
+        * Show the form for creating a new resource.
+        *
+        * @return \Illuminate\Http\Response
+        */
+        public function create()
+        {
+            //
+        }
+
+        /**
+        * Store a newly created resource in storage.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @return \Illuminate\Http\Response
+        */
+        public function store(Request $request)
+        {
+            //
+        }
+
+        /**
+        * Display the specified resource.
+        *
+        * @param  int  $id
+        * @return \Illuminate\Http\Response
+        */
+        public function show($id)
+        {
+            //
+        }
+
+        /**
+        * Show the form for editing the specified resource.
+        *
+        * @param  int  $id
+        * @return \Illuminate\Http\Response
+        */
+        public function edit($id)
+        {
+            //
+        }
+
+        /**
+        * Update the specified resource in storage.
+        *
+        * @param  \Illuminate\Http\Request  $request
+        * @param  int  $id
+        * @return \Illuminate\Http\Response
+        */
+        public function update(Request $request, $id)
+        {
+            //
+        }
+
+        /**
+        * Remove the specified resource from storage.
+        *
+        * @param  int  $id
+        * @return \Illuminate\Http\Response
+        */
+        public function destroy($id)
+        {
+            //
+        }
+    }
+
+ - Tiếp theo bạn khai báo route cho controller
+ `Route::resource('photos', 'PhotoController');`
+ - Chỉ với 1 dòng khai báo như này, là bạn đã khai báo cho tất cả các action trong PhotoController.
+ - Khai báo cho nhiều resource controller cùng 1 lúc:
+    Route::resources([
+        'photos' => 'PhotoController',
+        'posts' => 'PostController'
+    ]);
+ - KHi chỉ muốn dùng một số action nào đó:
+    Route::resource('photos', 'PhotoController')->only([
+        'index', 'show'
+    ]);
+
+    Route::resource('photos', 'PhotoController')->except([
+        'create', 'store', 'update', 'destroy'
+    ]);
+ - Các action
+ | Verb  | URI  | Action  | Route  |
+|---|---|---|---|
+| GET  | 	/photos  | index  | photos.index  |
+| GET  | /photos/create  |  create  | photos.create |
+| POST  | 	/photos  | store  | photos.store  |
+| GET  | /photos/{photo}  |  show  | photos.show |
+| GET  | 		/photos/{photo}/edit  | edit  | photos.edit  |
+| PUT/PATCH  | /photos/{photo}  |  update  | photos.update |
+| DELETE  | /photos/{photo}  |  destroy  | photos.destroy |
+### Spoofing Form Methods
+ - DÙng cho các method put, patch ,delete 
+    <form action="/foo/bar" method="POST">
+        @method('PUT')
+    </form>
+### Cách nhận Request
+ - Route : `Route::put('user/{id}', 'UserController@update');`
+ - Controller : 
+    <?php
+
+    namespace App\Http\Controllers;
+
+    use Illuminate\Http\Request;
+
+    class UserController extends Controller
+    {
+        /**
+        * Update the given user.
+        *
+        * @param  Request  $request
+        * @param  string  $id
+        * @return Response
+        */
+        public function update(Request $request, $id)
+        {
+            //
+        }
+    }
+
+# HTTP Requests
+## Accessing The Request
+ - Sử dụng `Illuminate\Http\Request` method để nhận `request`
+    <?php
+
+    namespace App\Http\Controllers;
+
+    use Illuminate\Http\Request;
+
+    class UserController extends Controller
+    {
+        /**
+        * Store a new user.
+        *
+        * @param  Request  $request
+        * @return Response
+        */
+        public function store(Request $request)
+        {
+            $name = $request->input('name');
+
+            //
+        }
+    }
+## Retrieving The Request Path
+`$uri = $request->path();`
+    if ($request->is('admin/*')) {
+        //
+    }
+## Retrieving The Request URL
+    // Without Query String...
+    $url = $request->url();
+
+    // With Query String...
+    $url = $request->fullUrl();
+## Retrieving The Request Method
+    $method = $request->method();
+
+    if ($request->isMethod('post')) {
+        //
+    }
