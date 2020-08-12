@@ -1,6 +1,46 @@
 # Blade template (resources/views)
 
 ## kế thừa
+
+    <!-- Lưu tại resources/views/layouts/master.blade.php -->
+    
+    <html>
+        <head>
+            <title>App Name - @yield('title')</title>
+        </head>
+        <body>
+            @section('sidebar')
+                <h3>Đây là sidebar chính.</h3>
+            @show
+    
+            <div class="container">
+                @yield('content')
+            </div>
+        </body>
+    </html>
+
+ - Khi định nghĩa một trang con, bạn có thể sử dụng từ khóa chỉ thị` @extends ` để chỉ định trang con nên kế thừa từ layout nào
+
+    <!-- Lưu tại resources/views/child.blade.php -->
+    
+    @extends('layouts.master')
+    
+    @section('title', 'Tiêu đề trang')
+    
+    @section('sidebar')
+        @parent
+    
+        <p>Đây là phần thêm vào bên dưới sidebar chính ở layout.</p>
+    @endsection
+    
+    @section('content')
+        <p>Đây là phần nội dung trong trang.</p>
+    @endsection
+
+ - `@yield`: bản thân từ này đồng nghĩa với từ output, do đó dĩ nhiên nhiệm vụ của nó là xuất dữ liệu. Vậy ta chỉ nên dùng cho việc xuất những `dữ liệu nhỏ`.
+ - `@section` : có nghĩa là phần, đoạn hay mảnh. Rõ ràng từ khóa này nhắm tới việc phân nhỏ layout ra thành từng đoạn nhỏ để  các trang con ghi nội dung vào các vị trí đánh dấu này!
+ - Về mặt kỹ thuật, thật sự khi sử dụng @section , các trang con sẽ có thể ghi đè, hoặc ghi nối thêm nội dung bằng từ khóa @parent . Khi có từ khóa này, Blade sẽ lấy nội dung trong section của layout “chắp vào” trước nội dung của @section  ở trang con. Còn khi sử dụng @yield , nội dung ở trang con sẽ luôn luôn ghi đè vào vị trí đánh dấu ở layout, mà không thể nối thêm dữ liệu ở layout vào như khi dùng @section .
+
 ## Hiển thị data
  `Hello, {{ $name }}.`
 
